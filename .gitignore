@@ -130,3 +130,6 @@ local.properties
 # STM32CubeIDE debug
 Debug/
 *Debug.cfg
+
+# vscode
+.vscode/
