@@ -25,6 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stm32h7xx_nucleo_144.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -435,9 +436,12 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
+  BSP_LED_Init(LED_GREEN);
   /* Infinite loop */
   for(;;)
   {
+	BSP_LED_Toggle(LED_GREEN);
+    osDelay(50U);
   }
   /* USER CODE END 5 */ 
 }
