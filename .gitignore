@@ -126,3 +126,7 @@ local.properties
 # STM32CubeMX-specific
 .mxproject
 *.ioc
+
+# STM32CubeIDE debug
+Debug/
+*Debug.cfg
