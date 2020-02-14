@@ -84,6 +84,14 @@ public:
 		}
 		return y0;
 	}
+
+	/**
+	 * Get the order of the filter.
+	 * @return uint16_t Filter order.
+	 */
+	uint16_t getOrder() const {
+		return n;
+	}
 }; // class FIR
 
 } // namespace brown
