@@ -11,6 +11,8 @@
 #ifndef INC_FILTERS_H_
 #define INC_FILTERS_H_
 
+#include <stdint.h>
+
 namespace brown {
 
 /**
@@ -29,12 +31,12 @@ private:
 	 * Impulse response of the filter, i.e. the coefficients.
 	 * Arranged in inverse time order, i.e. {h[n-1] h[n-2] ... h[1] h[0]}.
 	 */
-	T& h[];
+	T h[];
 
 	/*
 	 * Delayed input from x[-N+1] to x[0]. A circular buffer.
 	 */
-	T& x[];
+	T x[];
 
 	/*
 	 * Current head position of the input circular buffer. Next input will be
@@ -70,7 +72,7 @@ public:
 	 * @param x Latest input.
 	 */
 	void input(T x0) {
-		x[xhead++] = x0; xhead %= n;
+		x[xHead++] = x0; xHead %= n;
 	}
 
 	/**
