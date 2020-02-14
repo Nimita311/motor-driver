@@ -23,7 +23,7 @@ void appInit();
 /**
   * Create all application level FreeRTOS tasks.
   * This function should be called in main before the kernel starts.
-  * @return FreeRTOS success flag
+  * @return BaseType_t FreeRTOS success flag
   */
 BaseType_t appCreateTasks();
 
