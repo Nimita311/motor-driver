@@ -99,9 +99,9 @@ public:
 			}
 		// INIT: set <lastTick> and transit to LOW.
 		} else { // (status == Status::INIT
-			lastTick = tick;
 			status = Status::LOW;
 		}
+		lastTick = tick;
 	}
 
 	/**
