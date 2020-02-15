@@ -1,6 +1,7 @@
 /**
  * @file     app.h
- * @brief    Application code interface.
+ * @brief    Application code interface including initialization, task creation,
+ *           and ISRs.
  * @author   Haoze Zhang
  * @version  20200211
  *
@@ -10,6 +11,8 @@
 
 #ifndef INC_APP_H_
 #define INC_APP_H_
+
+#include "stm32h7xx_hal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +29,8 @@ void appInit();
   * @return BaseType_t FreeRTOS success flag
   */
 BaseType_t appCreateTasks();
+
+void taskFreqCntTimerISR(TIM_HandleTypeDef *htim);
 
 #ifdef __cplusplus
 } // extern "C"
