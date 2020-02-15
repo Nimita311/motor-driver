@@ -77,34 +77,63 @@ public:
 	 * @param x FIR input buffer. Size <n>.
 	 * @param tickFrequency Timer tick frequency.
 	 */
-	FrequencyCounter(uint16_t n, TF h[], TF x[], TF tickFrequency):
-		filter(n, h, x), tickFrequency(tickFrequency) {}
+	FrequencyCounter(uint16_t n, const TF h[], TF x[], TF tickFrequency):
+		tickFrequency(tickFrequency), filter(n, h, x) {}
 
 	/**
 	 * Input a capture register (CCR) value.
 	 * It should be an incremental tick value of the timer.
 	 * @param tick Captured counter tick.
 	 */
-	void inputTick(TT tick);
+	void inputTick(TT tick) {
+		tickCounterPerTimerPeriod++;
+		// COUNTING: simply use the input.
+		if (status == Status::COUNTING) {
+			filter.input(tick-lastTick);
+		// LOW: use data and check if enough data.
+		} else if (status == Status::LOW) {
+			filter.input(tick-lastTick);
+			// Transit to COUNTING from LOW if enough data is acquired
+			if (++tickCounterInFilter >= filter.getOrder()) {
+				status == Status::COUNTING;
+			}
+		// INIT: set <lastTick> and transit to LOW.
+		} else { // (status == Status::INIT
+			lastTick = tick;
+			status = Status::LOW;
+		}
+	}
 
 	/**
 	 * Get the frequency of the input pulse train in [Hz].
 	 * Output 0 if frequency below lower bound, i.e. timer's full period.
 	 * @return TF Frequency [Hz].
 	 */
-	TF outputFrequency() const;
+	TF outputFrequency() const {
+		return (status == Status::COUNTING) ?
+			tickFrequency/filter.output() : 0;
+	}
 
 	/**
 	 * Reset the frequency counter to INIT state.
 	 */
-	void reset();
+	void reset() {
+		status = Status::INIT;
+		tickCounterInFilter = 0;
+		tickCounterPerTimerPeriod = 0;
+	}
 
 	/**
 	 * Method to be called in timer overflow ISR.
 	 * The frequency counter will be reset if no tick is acquired in a full period,
 	 * as the frequency is below the lower bound.
 	 */
-	void timeout();
+	void timeout() {
+		if (tickCounterPerTimerPeriod == 0) {
+			reset();
+		}
+		tickCounterPerTimerPeriod = 0;
+	}
 };
 
 } // namespace brown
