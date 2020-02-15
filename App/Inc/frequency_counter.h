@@ -11,7 +11,7 @@
 #ifndef INC_FREQUENCY_COUNTER_H_
 #define INC_FREQUENCY_COUNTER_H_
 
-#include "filters.h"
+#include "fir.tcc"
 
 namespace brown {
 

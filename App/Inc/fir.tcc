@@ -1,6 +1,6 @@
 /**
- * @file     filters.h
- * @brief    Digital filters.
+ * @file     fir.tcc
+ * @brief    FIR digital filter.
  * @author   Haoze Zhang
  * @version  20200213
  *
@@ -8,10 +8,8 @@
  * Copyright (c) 2020 Haoze Zhang | Brown Engineering
  */
 
-#ifndef INC_FILTERS_H_
-#define INC_FILTERS_H_
-
-#include <stdint.h>
+#ifndef INC_FIR_TCC_
+#define INC_FIR_TCC_
 
 namespace brown {
 
@@ -98,4 +96,4 @@ public:
 
 } // namespace brown
 
-#endif /* INC_FILTERS_H_ */
+#endif /* INC_FIR_TCC_ */
