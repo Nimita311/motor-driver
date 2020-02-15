@@ -15,7 +15,7 @@
 #include "stm32h7xx_hal.h"
 
 #include "app.h"
-#include "frequency_counter.h"
+#include "frequency_counter.tcc"
 
 void _putchar(char c) {
 	extern UART_HandleTypeDef huart3;

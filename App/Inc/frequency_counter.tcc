@@ -1,5 +1,5 @@
 /**
- * @file     frequency_counter.h
+ * @file     frequency_counter.tcc
  * @brief    Frequency counter.
  * @author   Haoze Zhang
  * @version  20200213
