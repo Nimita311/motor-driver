@@ -118,7 +118,7 @@ typedef enum
 #define LED1_GPIO_PORT                          GPIOB
 #define LED1_GPIO_CLK_ENABLE()                  __HAL_RCC_GPIOB_CLK_ENABLE()
 #define LED1_GPIO_CLK_DISABLE()                 __HAL_RCC_GPIOB_CLK_DISABLE()
-#if defined (USE_STM32H7XX_NUCLEO_144_MB1363) || defined (USE_STM32H7XX_NUCLEO_144_MB1364)
+#if defined (USE_STM32H7XX_NUCLEO_144_MB1363) || defined (USE_STM32H7XX_NUCLEO_144_MB1364) || defined (USE_STM32H7XX_NUCLEO_144)
 #define LED2_PIN                                GPIO_PIN_1
 #define LED2_GPIO_PORT                          GPIOE
 #define LED2_GPIO_CLK_ENABLE()                  __HAL_RCC_GPIOE_CLK_ENABLE()
