@@ -31,12 +31,12 @@ private:
 	 * Impulse response of the filter, i.e. the coefficients.
 	 * Arranged in inverse time order, i.e. {h[n-1] h[n-2] ... h[1] h[0]}.
 	 */
-	T h[];
+	const T* h;
 
 	/*
 	 * Delayed input from x[-N+1] to x[0]. A circular buffer.
 	 */
-	T x[];
+	T* x;
 
 	/*
 	 * Current head position of the input circular buffer. Next input will be
@@ -53,8 +53,8 @@ public:
 	 * @param x Buffer for the delayed input. Length n.
 	 * @param isZeroState If true, initialize x with 0. True by default.
 	 */
-	FIR(uint16_t n, T h[], T x[], bool isZeroState=true):
-		h(h), x(x), n(n) {
+	FIR(uint16_t n, const T h[], T x[], bool isZeroState=true):
+		n(n), h(h), x(x) {
 		if (isZeroState) {reset();}
 		if (n == 0U) {n = 1U;}
 	}
