@@ -87,15 +87,16 @@ public:
 	 */
 	void inputTick(TT tick) {
 		tickCounterPerTimerPeriod++;
+		TT interval = tick - lastTick;
 		// COUNTING: simply use the input.
 		if (status == Status::COUNTING) {
-			filter.input(tick-lastTick);
+			filter.input(interval);
 		// LOW: use data and check if enough data.
 		} else if (status == Status::LOW) {
-			filter.input(tick-lastTick);
+			filter.input(interval);
 			// Transit to COUNTING from LOW if enough data is acquired
 			if (++tickCounterInFilter >= filter.getOrder()) {
-				status == Status::COUNTING;
+				status = Status::COUNTING;
 			}
 		// INIT: set <lastTick> and transit to LOW.
 		} else { // (status == Status::INIT
