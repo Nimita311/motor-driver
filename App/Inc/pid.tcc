@@ -63,7 +63,7 @@ private:
         out += x0*activeGainSet[0];
         out += states[0]*activeGainSet[1];
         out += states[1]*activeGainSet[2];
-        out += states[3]
+        out += states[3];
     }
 
     // Update IIR states
@@ -75,6 +75,10 @@ private:
     }
 
 public:
+    PID() {
+        reset();
+    }
+
     /**
      * @brief Constructor.
      * @param kp Proportional gain.
@@ -151,7 +155,7 @@ public:
                 isAntiWindupActive = false;
             }
         }
-        _updateStates(x0, y0)
+        _updateStates(x0, y0);
         return y0;
     }
 
@@ -162,7 +166,7 @@ public:
      */
     void reset() {
         for (uint8_t i = 0; i < 4; i++) {
-            states[i] = 0
+            states[i] = 0;
         }
     }
 
@@ -174,7 +178,7 @@ public:
     }
 
     T* getStates() const {
-        return states
+        return states;
     }
 };
 
