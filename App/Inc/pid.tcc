@@ -64,10 +64,11 @@ private:
         out += states[0]*activeGainSet[1];
         out += states[1]*activeGainSet[2];
         out += states[3];
+        return out;
     }
 
     // Update IIR states
-    T _updateStates(T x0, T y0) {
+    void _updateStates(T x0, T y0) {
         states[1] = states[0];
         states[0] = x0;
         states[3] = states[2];
