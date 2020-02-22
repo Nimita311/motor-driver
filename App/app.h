@@ -31,6 +31,8 @@ void appInit();
 BaseType_t appCreateTasks();
 
 void taskFreqCntTimerISR(TIM_HandleTypeDef *htim);
+void _putchar(char c);
+void _putblock(char* c, size_t size);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+message Cmd {
+    uint32 id = 1;
+    oneof content {
+        PIDCmd pid_cmd = 2;
+    }
+}
+
+message PIDCmd {
+    // PID gains
+    float kp = 1;
+    float ki = 2;
+    float kd = 3;
+    // Anti-windup
+    float min = 4;
+    float max = 5;
+    // Sampling period
+    float ts = 6;
+    // Setpoint
+    float w = 7;
+}

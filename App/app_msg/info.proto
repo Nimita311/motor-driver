@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "nanopb.proto";
+
+message Info {
+    uint32 timestamp = 1;
+    uint32 id = 2;
+    oneof content {
+        PIDInfo pid_info = 3;
+    }
+}
+
+message PIDInfo {
+    // Controller input (i.e. e=w-y)
+    float e = 1;       // normalized
+    float e_real = 2;  // in real unit
+    // Controller output (plant input)
+    float x = 3;       // normalized
+    float x_real = 4;  // in real unit and potentially saturated
+    // Plant output
+    float y = 5;       // normalized
+    float y_real = 6;  // in real unit
+    // Anti-windup status
+    bool anti_windup_active = 7;
+}
+
+message CPUInfo {
+    message TaskInfo {
+        string name = 1 [(nanopb).max_size = 16];
+        uint32 usage = 2;
+    }
+    repeated TaskInfo task_info = 1 [(nanopb).max_count = 5];;
+}
