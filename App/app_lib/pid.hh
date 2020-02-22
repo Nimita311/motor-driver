@@ -1,5 +1,5 @@
 /**
- * @file     pid.tcc
+ * @file     pid.hh
  * @brief    Bilinear PID controller.
  * @author   Haoze Zhang
  * @version  20200215
@@ -8,6 +8,8 @@
  * Copyright (c) 2020 Haoze Zhang | Brown Engineering
  */
 
+#ifndef INC_PID_HH_
+#define INC_PID_HH_
 namespace brown {
 
 /**
@@ -181,6 +183,8 @@ public:
     T* getStates() const {
         return states;
     }
-};
+}; // class PID
 
-} // namespace
+} // namespace brown
+
+#endif // INC_PID_HH_

@@ -1,5 +1,5 @@
 /**
- * @file     fifo_buffer.tcc
+ * @file     fifo_buffer.hh
  * @brief    A lightweight circular FIFO buffer.
  * @author   Haoze Zhang
  * @version  20200221

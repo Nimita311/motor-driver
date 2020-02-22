@@ -1,5 +1,5 @@
 /**
- * @file     frequency_counter.tcc
+ * @file     freq_counter.hh
  * @brief    Frequency counter.
  * @author   Haoze Zhang
  * @version  20200213
@@ -11,7 +11,7 @@
 #ifndef INC_FREQUENCY_COUNTER_H_
 #define INC_FREQUENCY_COUNTER_H_
 
-#include "fir.tcc"
+#include "fir.hh"
 
 namespace brown {
 
@@ -122,7 +122,7 @@ public:
 		if (tickCounterPerTimeout == 0) {reset();}
 		tickCounterPerTimeout = 0;
 	}
-};
+}; // class FrequencyCounter
 
 } // namespace brown
 

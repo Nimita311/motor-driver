@@ -17,9 +17,9 @@
 #include "pb_decode.h"
 
 #include "app.h"
-#include "pid.tcc"
+#include "pid.hh"
 #include "messenger.hh"
-#include "frequency_counter.tcc"
+#include "freq_counter.hh"
 
 #include "pid_info.pb.h"
 

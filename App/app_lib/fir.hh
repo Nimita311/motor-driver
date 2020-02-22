@@ -1,5 +1,5 @@
 /**
- * @file     fir.tcc
+ * @file     fir.hh
  * @brief    FIR digital filter.
  * @author   Haoze Zhang
  * @version  20200213
@@ -11,7 +11,7 @@
 #ifndef INC_FIR_TCC_
 #define INC_FIR_TCC_
 
-#include "fifo_buffer.tcc"
+#include "fifo_buffer.hh"
 
 namespace brown {
 
