@@ -229,3 +229,12 @@ void getRegisters(uint32_t* pStack) {
 
     for( ;; );
 }
+
+void configureTimerForRunTimeStats() {
+    extern __IO uint32_t uwTick;
+    uwTick = 0;
+}
+
+unsigned long getRunTimeCounterValue() {
+    return HAL_GetTick();
+}
