@@ -14,6 +14,19 @@
 
 #include "stm32h7xx_hal.h"
 
+#define APP_HARDFAULT_ISR                                           \
+__asm volatile                                                      \
+(                                                                   \
+    " tst lr, #4                                                \n" \
+    " ite eq                                                    \n" \
+    " mrseq r0, msp                                             \n" \
+    " mrsne r0, psp                                             \n" \
+    " ldr r1, [r0, #24]                                         \n" \
+    " ldr r2, handler2_address_const                            \n" \
+    " bx r2                                                     \n" \
+    " handler2_address_const: .word getRegisters                \n" \
+);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,6 +44,9 @@ void appInit();
 BaseType_t appCreateTasks();
 
 void taskFreqCntTimerISR(TIM_HandleTypeDef *htim);
+void taskMsgDMAISR();
+void getRegisters(uint32_t* pStack);
+
 void _putchar(char c);
 void _putblock(char* c, size_t size);
 

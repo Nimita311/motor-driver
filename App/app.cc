@@ -198,3 +198,34 @@ void _putblock(char* c, size_t size) {
     }
     messenger.sendCompleteCallback();
 }
+
+void _putblockDMA(char* c, size_t size) {
+    extern UART_HandleTypeDef huart3;
+    HAL_UART_Transmit_DMA(&huart3, reinterpret_cast<uint8_t*>(c), size);
+}
+
+void getRegisters(uint32_t* pStack) {
+	volatile uint32_t r0;
+	volatile uint32_t r1;
+	volatile uint32_t r2;
+	volatile uint32_t r3;
+	volatile uint32_t r12;
+	volatile uint32_t lr;  /* Link register. */
+	volatile uint32_t pc;  /* Program counter. */
+	volatile uint32_t psr; /* Program status register. */
+
+    r0 = pStack[ 0 ];
+    r1 = pStack[ 1 ];
+    r2 = pStack[ 2 ];
+    r3 = pStack[ 3 ];
+
+    r12 = pStack[ 4 ];
+    lr = pStack[ 5 ];
+    pc = pStack[ 6 ];
+    psr = pStack[ 7 ];
+
+	BSP_LED_Init(LED_RED);
+	BSP_LED_On(LED_RED);
+
+    for( ;; );
+}
