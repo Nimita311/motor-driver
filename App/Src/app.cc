@@ -46,7 +46,7 @@ static void taskMsg(void* params) {
     message.e_real = 10.5f;
     message.anti_windup_active = true;
     for (;;) {
-        messenger.sendPerChar(PIDInfo_fields, &message);
+//        messenger.sendPerChar(PIDInfo_fields, &message);
         vTaskDelay(50U);
     }
 }
@@ -62,15 +62,18 @@ static const float h[] = {
  0.06249894574f,   0.04353854433f,    0.02704446949f,  0.01449862681f,  0.006307432894f,
  0.001889089821f,  4.342992899e-19f, -0.0008080433472f
 };
-static float x[sizeof(h)/sizeof(float)] = {0};
-brown::FrequencyCounter<uint16_t, float> fc(
-    sizeof(h)/sizeof(float), h, x, 100.0f*1.0e3f);
+static float periods[sizeof(h)/sizeof(float)] = {0};
+static uint16_t ticks[24] = {0};
+brown::FrequencyCounter<uint16_t, float, uint8_t> fc(
+    h, periods, static_cast<uint8_t>(sizeof(periods)/sizeof(float)),
+    ticks, static_cast<uint8_t>(sizeof(ticks)/sizeof(uint16_t)),
+    100.0f*1.0e3f);
 
 void taskFreqCntTimerISR(TIM_HandleTypeDef *htim) {
     if (__HAL_TIM_GET_FLAG(htim, TIM_FLAG_CC1) != RESET) {
-        fc.inputTick(htim->Instance->CCR1);
+        fc.input(htim->Instance->CCR1);
     } else if (__HAL_TIM_GET_FLAG(htim, TIM_FLAG_UPDATE) != RESET) {
-        fc.timeout();
+        fc.timeoutCallback();
     }
 }
 
@@ -78,21 +81,27 @@ static void taskFreqCnt(void* params)
 {
     for (;;) {
         TickType_t xLastWakeTime = xTaskGetTickCount();
-        float f = fc.outputFrequency();
-        // printf_("Frequency = %5.1fHz\r\n",f);
+        float f = fc.output();
+        printf_("Frequency = %6.3fHz\r\n",f);
         vTaskDelayUntil(&xLastWakeTime, 50U);
     }
 }
 
 /* Task PID *****************************************************************/
 static TaskHandle_t taskPIDHandle = NULL;
-static brown::PID<float> pid;
+static brown::PID<float> pid(1.0f, 0.5f, 0.0f, 0.05f);
 static void taskPID(void* params) {
     static const TickType_t period = 5U;
+    static const float w = 1.0f;
+    pid.enableAntiWindup(0.0f, 1.0f);
     for (;;) {
         TickType_t xLastWakeTime = xTaskGetTickCount();
-        float freq = fc.outputFrequency();
-        float duty = pid.output(freq);
+        float freq = fc.output();
+        freq = freq/40.0;
+        float duty = pid.output(w-freq);
+        duty = 1.0-duty;
+        duty = duty > 1.0 ? 1.0 : duty;
+        duty = duty < 0.0 ? 0.0 : duty;
         TIM2->CCR1 = static_cast<uint32_t>(TIM2->ARR*duty);
         vTaskDelayUntil(&xLastWakeTime, period);
     }
@@ -139,6 +148,10 @@ void appInit() {
     extern TIM_HandleTypeDef htim17;
     HAL_TIM_Base_Start_IT(&htim17);
     HAL_TIM_IC_Start_IT(&htim17, TIM_CHANNEL_1);
+
+    // Task: PID
+    extern TIM_HandleTypeDef htim2;
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 }
 
 void _putchar(char c) {

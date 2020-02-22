@@ -23,34 +23,15 @@ namespace brown {
  * @param TT: timer counter type. Typical uint16_t/uint32_t.
  * @param TF: filter/frequency type. Typical float32_t.
  */
-template <class TT, class TF>
+template <class TT, class TF, class SIZE>
 class FrequencyCounter {
 private:
-	/*
-	 * Status of the frequency counter
-	 * COUNTING: <lastTick> and all samples in <filter> are valid.
-	 * LOW: <lastTick> has valid data but <filter> is not yet filled.
-	 * INIT: <lastTick> and <filter> contains no valid data.
-	 */
-	enum class Status{
-		COUNTING,
-		LOW,
-		INIT
-	};
-	Status status = Status::INIT;
-
 	/*
 	 * Number of ticks acquired in a timer period.
 	 * If no tick is acquired in a full timer period, the frequency should be
 	 * considered to be low/0.
 	 */
-	TT tickCounterPerTimerPeriod= 0;
-
-	/*
-	 * Number of valid samples in the filter.
-	 *
-	 */
-	uint16_t tickCounterInFilter = 0;
+	volatile TT tickCounterPerTimeout= 0;
 
 	/*
 	 * The most recent input tick.
@@ -58,16 +39,21 @@ private:
 	 * tick and this value.
 	 */
 	TT lastTick = 0;
+	TF lastPeriod = 0;
+
 
 	/*
 	 * Frequency of the tick in [Hz].
 	 */
 	const TF tickFrequency;
 
+	FIFOBuffer<TT, SIZE> tickBuffer;
+
 	/*
 	 * Filter for the tick intervals.
 	 */
-	FIR<TF> filter;
+	FIR<TF, SIZE> periodFilter;
+
 
 public:
 	/**
@@ -77,30 +63,33 @@ public:
 	 * @param x FIR input buffer. Size <n>.
 	 * @param tickFrequency Timer tick frequency.
 	 */
-	FrequencyCounter(uint16_t n, const TF h[], TF x[], TF tickFrequency):
-		tickFrequency(tickFrequency), filter(n, h, x) {}
+	FrequencyCounter(const TF h[], TF periods[], SIZE nP, TT ticks[], SIZE nT,
+			TF tickFrequency):
+		tickFrequency(tickFrequency), tickBuffer(ticks, nT),
+		periodFilter(h, periods, nP) {}
 
 	/**
 	 * Input a capture register (CCR) value.
 	 * It should be an incremental tick value of the timer.
 	 * @param tick Captured counter tick.
 	 */
-	void inputTick(TT tick) {
-		tickCounterPerTimerPeriod++;
+	void input(TT tick) {
+		tickCounterPerTimeout++;
 		TT interval = tick - lastTick;
-		// COUNTING: simply use the input.
-		if (status == Status::COUNTING) {
-			filter.input(interval);
-		// LOW: use data and check if enough data.
-		} else if (status == Status::LOW) {
-			filter.input(interval);
-			// Transit to COUNTING from LOW if enough data is acquired
-			if (++tickCounterInFilter >= filter.getOrder()) {
-				status = Status::COUNTING;
-			}
-		// INIT: set <lastTick> and transit to LOW.
-		} else { // (status == Status::INIT
-			status = Status::LOW;
+		// Enough samples present
+		if (tickBuffer.isFull()) {
+			lastPeriod += interval;
+			lastPeriod -= tickBuffer[0];
+			tickBuffer.add(interval);
+			periodFilter.input(lastPeriod);
+		// Accumulating samples
+		} else if (tickBuffer.size() > 0) {
+			lastPeriod += interval;
+			tickBuffer.add(interval);
+		// No samples yet
+		} else {
+			lastPeriod = 0;
+			tickBuffer.add(0);
 		}
 		lastTick = tick;
 	}
@@ -110,18 +99,18 @@ public:
 	 * Output 0 if frequency below lower bound, i.e. timer's full period.
 	 * @return TF Frequency [Hz].
 	 */
-	TF outputFrequency() const {
-		return (status == Status::COUNTING) ?
-			tickFrequency/filter.output() : 0;
+	TF output() const {
+		return (periodFilter.isValid()) ?
+			tickFrequency/periodFilter.output() : 0;
 	}
 
 	/**
 	 * Reset the frequency counter to INIT state.
 	 */
 	void reset() {
-		status = Status::INIT;
-		tickCounterInFilter = 0;
-		tickCounterPerTimerPeriod = 0;
+		tickBuffer.reset();
+		periodFilter.reset();
+		tickCounterPerTimeout = 0;
 	}
 
 	/**
@@ -129,11 +118,9 @@ public:
 	 * The frequency counter will be reset if no tick is acquired in a full period,
 	 * as the frequency is below the lower bound.
 	 */
-	void timeout() {
-		if (tickCounterPerTimerPeriod == 0) {
-			reset();
-		}
-		tickCounterPerTimerPeriod = 0;
+	void timeoutCallback() {
+		if (tickCounterPerTimeout == 0) {reset();}
+		tickCounterPerTimeout = 0;
 	}
 };
 
