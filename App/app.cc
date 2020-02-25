@@ -36,7 +36,7 @@ static void taskLEDToggle(void* params) {
         BSP_LED_On(LED_GREEN);
         vTaskDelayUntil(&xLastWakeTime, LEDOnDuration);
         BSP_LED_Off(LED_GREEN);
-        vTaskDelayUntil(&xLastWakeTime, LEDTogglePeriod);
+        vTaskDelayUntil(&xLastWakeTime, LEDTogglePeriod-LEDOnDuration);
     }
 }
 
