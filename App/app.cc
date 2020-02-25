@@ -114,6 +114,7 @@ static brown::PID<float> pid(kp, ki, kd, PIDPeriod);
 
 static void taskPID(void* params) {
     static Info container = Info_init_zero;
+    static Info* pContainer = &container;
     container.which_content = Info_pid_info_tag;
     static PIDInfo& msg = container.content.pid_info;
     static const TickType_t period = 5U;
@@ -132,7 +133,7 @@ static void taskPID(void* params) {
         duty = duty < 0.0 ? 0.0 : duty;
         TIM2->CCR1 = static_cast<uint32_t>(TIM2->ARR*duty);
 
-        xQueueSend(msgQueue, static_cast<void*>(&container), 0);
+        xQueueSend(msgQueue, static_cast<void*>(&pContainer), 0);
         vTaskDelayUntil(&xLastWakeTime, period);
     }
 }
