@@ -133,6 +133,9 @@ static void taskPID(void* params) {
         duty = duty < 0.0 ? 0.0 : duty;
         TIM2->CCR1 = static_cast<uint32_t>(TIM2->ARR*duty);
 
+        if (msg.anti_windup_active) {BSP_LED_On(LED_BLUE);}
+        else {BSP_LED_Off(LED_BLUE);}
+
         xQueueSend(msgQueue, static_cast<void*>(&pContainer), 0);
         vTaskDelayUntil(&xLastWakeTime, period);
     }
