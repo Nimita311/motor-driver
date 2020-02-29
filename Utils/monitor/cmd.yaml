@@ -1,0 +1,28 @@
+# cmd.yaml
+#
+# This file is used to configure the microcontroller.
+#
+# Distributed under MIT License
+# Copyright (c) 2020 Haoze Zhang | Brown Engineering
+
+%YAML 1.2
+---
+pid_cmd:
+  enable_pid: true
+  kp: 1.0
+  ki: 0.5
+  kd: 0.01
+
+  # Anti-windup
+  enable_anti_windup: true
+  min: 0.0
+  max: 1.0
+
+  # Sampling period [s]
+  ts: 0.05
+
+  # Setpoint
+  w: 20.0
+
+  # Controller output when disabled
+  u: 0.0

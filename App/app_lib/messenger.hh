@@ -13,19 +13,13 @@
 
 #include "pb.h"
 #include "pb_encode.h"
+#include "pb_decode.h"
 
 namespace brown {
 
-class Messenger {
+class Sender {
 private:
-    // Preamble and delimiter of the message. Simple packeting scheme.
-    const char* PREAMBLE = "UUUAT";
-    size_t PREAMBLE_SIZE = 5;
-    const char* DELIMITER = "\0\0\0AT";
-    size_t DELIMITER_SIZE = 5;
-
-    // Buffer for encoded message.
-    uint8_t* buffer = NULL;
+    uint8_t* buffer = nullptr;
     size_t bufferSize = 0;
 
     // Bytes to write to physical interface.
@@ -34,17 +28,13 @@ private:
 
     // Callbacks that initiate hardware transmission.
     // Character-based transmission, assume blocking.
-    void (*putchar) (char) = NULL;
+    void (*putchar) (char) = nullptr;
     // Block-based (DMA) transmission transmission, assume non-blocking.
     // Need to call `sendCompleteCallback` to indicate completion.
-    void (*putblock) (char*, size_t) = NULL; //
+    void (*putblock) (char*, size_t) = nullptr; //
 
     bool _writePacketToStream(pb_ostream_t* pStream,
-            const pb_msgdesc_t* pFields, const void* pMessage) {
-        return (pb_write(pStream, (pb_byte_t*)PREAMBLE, PREAMBLE_SIZE)
-             && pb_encode(pStream, pFields, pMessage)
-             && pb_write(pStream, (pb_byte_t*)DELIMITER, DELIMITER_SIZE));
-    }
+        const pb_msgdesc_t* pFields, const void* pMessage);
 
     static bool _putcharStreamCallback(
         pb_ostream_t *stream, const pb_byte_t *buf, size_t count);
@@ -57,7 +47,7 @@ public:
      * @param putblock Callback function to transmit a block of characters
      * via the hardware interface.
      */
-    Messenger(uint8_t* buffer, uint16_t bufferSize,
+    Sender(uint8_t* buffer, uint16_t bufferSize,
             void (*putblock) (char*, size_t)):
         buffer(buffer), bufferSize(bufferSize), putblock(putblock) {}
 
@@ -69,40 +59,13 @@ public:
      * This form should be used only for debugging or memory critical cases.
      * It does not require a buffer.
      */
-    Messenger(void (*putchar) (char)): putchar(putchar) {}
+    Sender(void (*putchar) (char)): putchar(putchar) {}
 
     /**
-     * @brief Encode the message to the buffer and send it as a whole block.
+     * @brief Encode and send the message.
      * @return bool Success flag.
      */
-    bool sendPerBlock(const pb_msgdesc_t* pFields, const void* pMessage) {
-        if (isSending || putblock == NULL) {return false;}
-
-        pb_ostream_t stream = pb_ostream_from_buffer(buffer, bufferSize);
-        bool success = _writePacketToStream(&stream, pFields, pMessage);
-        isSending = true;
-        putblock(reinterpret_cast<char*>(buffer), stream.bytes_written);
-
-        return success;
-    }
-
-    /**
-     * @brief Send a message while encoding it.
-     * @return bool Success flag.
-     */
-    bool sendPerChar(const pb_msgdesc_t* pFields, const void* pMessage) {
-        if (isSending || putchar == NULL) {return false;}
-
-        pb_ostream_t stream = {0};
-        stream.max_size = SIZE_MAX;
-        stream.state = reinterpret_cast<void*>(putchar);
-        stream.callback = Messenger::_putcharStreamCallback;
-        isSending = true;
-        bool success = _writePacketToStream(&stream, pFields, pMessage);
-
-        sendCompleteCallback();
-        return success;
-    }
+    bool send(const pb_msgdesc_t* pFields, const void* pMessage);
 
     /**
      * @brief Signify the transmission is complete.
@@ -112,7 +75,49 @@ public:
     void sendCompleteCallback() {
         isSending = 0;
     }
-}; // class Messenger
+}; // class Sender
+
+class Receiver {
+private:
+    uint8_t* pRawBuffer = nullptr;
+    size_t rawBufferSize = 0;
+
+    uint8_t* pPktBuffer = nullptr;
+    size_t pktBufferSize = 0;
+
+    size_t headIdx = 0;
+    volatile size_t tailIdx = 0;
+
+    uint32_t count = 0;
+    uint32_t errCount = 0;
+
+public:
+    /**
+     * @param pRawBuffer Buffer for DMA circular write. Need to be large.
+     * @param pPktBuffer Buffer to hold a valid packet.
+     */
+    Receiver(uint8_t* pRawBuffer, size_t rawBufferSize,
+             uint8_t* pPktBuffer, size_t pktBufferSize):
+        pRawBuffer(pRawBuffer), rawBufferSize(rawBufferSize),
+        pPktBuffer(pPktBuffer), pktBufferSize(pktBufferSize) {}
+
+    /**
+     * @brief Decode an arrived packet.
+     * @param pFields Pointer to Nanopb message fields.
+     * @param pMessage Pointer to Nanopb message struct.
+     */
+    bool receive(const pb_msgdesc_t* pFields, void* pMessage);
+
+    /**
+     * @brief Update message tail location.
+     * @param dataLength Distance to the end of the raw buffer. With STM32
+     * DMA this is the NDT value in NDTR.
+     *
+     * This method should be called in UART Rx timeout ISR.
+     */
+    void receiveCompleteCallback(size_t dataLength);
+
+}; // class Receiver
 
 } // namespace brown
 

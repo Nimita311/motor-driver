@@ -5,52 +5,60 @@ Distributed under MIT License
 Copyright (c) 2020 Haoze Zhang | Brown Engineering
 '''
 
+from collections import deque
+
 class Scope(object):
     ''' Animated Matplotlib plot for live data '''
     scopes = list()
     config = {
         "xlim_width": 5,
-        "ylim": [-5, 80],
-        "xlim_step": 0.75
+        "ts": 0.05,
+        "xlim_step": 0.75,
+        "ylim": None,
+        "ymargin": 0.1
     }
 
-    def __init__(self, ax, config=None):
+    def __init__(self, ax, config={}):
         self.ax = ax
-        self.config = self.__class__.config
+        self.config = dict(self.__class__.config)
         for k, v in config.items():
             self.config[k] = v
+        self.datalen = int(self.config["xlim_width"]/self.config["ts"]*1.5)
         self.lines = dict()
         self.data = dict()
         self.updatedNames = list()
-        self.canvasFlag = True
         self.xlim = [0, self.config["xlim_width"]]
-        self.ax.set_ylim(self.config["ylim"])
+        if self.config["ylim"] is None:
+            self.ax.set_ymargin(self.config["ymargin"])
+        else:
+            self.ax.set_ylim(self.config["ylim"])
+        self.canvasFlag = True
         Scope.scopes.append(self)
 
-    def addLine(self, name, xs=None, ys=None):
-        xs = list() if xs is None else xs
-        ys = list() if ys is None else ys
+    def addLine(self, name):
+        xs = deque(maxlen=self.datalen)
+        ys = deque(maxlen=self.datalen)
         newLine = self.ax.plot(xs, ys)[0]
         self.data[name] = (xs, ys)
         self.lines[name] = newLine
         self.updatedNames.append(name)
 
     def addData(self, name, x, y):
-        # add data to exiting lines
-        if name in self.lines:
-            xs, ys = self.data[name]
-            # time revert, clear line and adjust xlim
-            if x < xs[-1]:
-                xs = list(); ys = list()
-                self.data[name] = (xs, ys)
-                self.xlim = [x, x+self.config["xlim_width"]]
-                self.canvasFlag = True
-            xs.append(x); ys.append(y)
-            self.updatedNames.append(name)
-        # create a new line
-        else:
-            self.addLine(name, [x], [y])
+        # Create a new line if the name does not exist
+        if name not in self.lines:
+            self.addLine(name)
 
+        # Append new data point
+        xs, ys = self.data[name]
+        # Time revert, clear line and adjust xlim
+        if xs and x < xs[-1]:
+            xs.clear(); ys.clear()
+            self.xlim = [x, x+self.config["xlim_width"]]
+            self.canvasFlag = True
+        xs.append(x); ys.append(y)
+        self.updatedNames.append(name)
+
+        # Beyond xlim, shift right
         if x > self.xlim[1]:
             width = self.config["xlim_width"]
             self.xlim[1] = x + self.config["xlim_step"]*width
@@ -58,14 +66,18 @@ class Scope(object):
             self.canvasFlag = True
 
     def update(self, frame):
+        if self.config["ylim"] is None:
+            self.ax.relim()
+            self.ax.autoscale_view()
+            self.canvasFlag = True
+
         if self.canvasFlag:
             self.ax.set_xlim(self.xlim)
             self.ax.figure.canvas.draw()
             self.canvasFlag = False
 
         for name in self.updatedNames:
-            xs, ys = self.data[name]
-            self.lines[name].set_data(xs, ys)
+            self.lines[name].set_data(*self.data[name])
 
     @classmethod
     def updateAll(cls, frame):
