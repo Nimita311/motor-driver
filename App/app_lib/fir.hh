@@ -31,8 +31,8 @@ private:
     FIFOBuffer<T, SIZE> x;
 
     // Coefficient table. For multirate-like filtering.
-    const T* idxStart = NULL;
-    const T* idxTable = NULL;
+    const T* idxStart = nullptr;
+    const T* idxTable = nullptr;
     SIZE nR = 0;
     SIZE nC = 0;
     SIZE activeRow = 0;
@@ -76,7 +76,7 @@ public:
 
         T y0 = 0;
         // Not using coefficient table
-        if (idxStart == NULL || idxTable == NULL || nR == 0 || nC == 0) {
+        if (idxStart == nullptr || idxTable == nullptr || nR == 0 || nC == 0) {
             for (SIZE i = 0; i < x.capacity(); i++) {
                 y0 += h[i]*x[i];
             }
