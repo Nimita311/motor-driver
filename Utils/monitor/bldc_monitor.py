@@ -51,21 +51,30 @@ def signalSource(messenger):
             '0.00', xy=(1, 0), va='center', ha="left",
             xycoords=('axes fraction',"data"),
             bbox=dict(boxstyle="round,pad=0.1", fc="#ADD6FF", ec="none", alpha=0.7))
+    uAnno = scopeact.ax.annotate(
+            '0.00', xy=(1, 0), va='center', ha="left",
+            xycoords=('axes fraction',"data"),
+            bbox=dict(boxstyle="round,pad=0.1", fc="#ADD6FF", ec="none", alpha=0.7))
     scopespd.ax.grid(True)
     scopeact.ax.set_ymargin(0.1)
     scopeact.canvasFlag = True
     while True:
         msg = messenger.receive()
         scopespd.addData("y", msg.timestamp/100.0, msg.pid_info.y_real)
-        scopeact.addData("x", msg.timestamp/100.0, msg.pid_info.x)
+        scopeact.addData("u", msg.timestamp/100.0, msg.pid_info.x)
         spdAnno.set_y(msg.pid_info.y_real)
         spdAnno.set_text("{:.1f}".format(msg.pid_info.y_real))
+        uAnno.set_y(msg.pid_info.x)
+        uAnno.set_text("{:.2f}".format(msg.pid_info.x))
 
 def main():
     fig = plt.figure()
     fig.canvas.set_window_title("BLDC Monitor")
     axspd = plt.subplot2grid((2,1), (0,0))
     axact = plt.subplot2grid((2,1), (1,0), sharex=axspd)
+    axspd.set_ylabel("Speed [Hz]")
+    axact.set_ylabel("Controll Effort [%]")
+    axact.set_xlabel("Time [s]")
     Scope(axspd, {"ylim":(-5,80)})
     Scope(axact)
 
