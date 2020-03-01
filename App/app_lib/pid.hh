@@ -1,6 +1,6 @@
 /**
  * @file     pid.hh
- * @brief    Bilinear PID controller.
+ * @brief    `PID` class.
  * @author   Haoze Zhang
  * @version  20200215
  *
@@ -13,20 +13,23 @@
 namespace brown {
 
 /**
- * @brief Bilinear PID controller with anti-windup support.
+ * @brief PID controller with causality compensation and anti-windup support.
  * @param T IIR filter type. Typical float or double.
  *
- * Discretized with bilinear transform from H(s) = kp + ki/s + kd*s.
- * With an optional first order 1/(tau*s+1) compensation for causality,
- * bandwidth limitation, and in some cases stability.
- * Transfer function:
+ * 1. Continuous transfer function:
+ *     H(s) = kp + ki/s + kd*s or
+ *     H(s) = (kp + ki/s + kd*s) / (tau*s+1)
+ * compensated with an optional pole -1/tau to ensure causality, bandwidth
+ * limitation, and in some cases stability.
+ * 2. Discrete transfer function derived with bilinear transform:
  *     H(z) = (k0*X(z) + k1*X(z)*z^-1 + k2*X(z)*z^-2) / (1 - z^-2) or
  *     H(z) = (k0*X(z) + k1*X(z)*z^-1 + k2*X(z)*z^-2) / (a + (b-a)*Y(z)*z^-1 - b*z^-2)
- * Difference equation:
+ * Without compensation, the open loop system is marginally stable with two
+ * poles on the unit circle. This may cause the close loop system to be
+ * unstable with some plants. Refer to root locus.
+ * 3. Difference equation:
  *     y[0] = k0*x[0] + k1*x[-1] + k2*x[-2] + y[-2] or
  *     y[0] = k0/a*x[0] + k1/a*x[-1] + k2/a*x[-2] + (a-b)/a*y[-1] + b/a*y[-2]
- * Marginally stable with two poles on the unit circle without compensation.
- * May cause the close loop system to be unstable with some plants.
  */
 template <class T>
 class PID {
@@ -121,9 +124,9 @@ public:
      * @param ki Integral gain.
      * @param kd Derivative gain.
      * @param ts Sampling period [s] for discretization.
+     * @param tau Time constant of the first order compensation.
      *
-     * Note that the parameters are continuous gains in
-     * H(s) = kp + ki/s + kd*s.
+     * Note that the parameters are gains in the continuum.
      */
     void setGains(T kp, T ki, T kd, T ts, T tau=0) {
         this->kp = kp;
@@ -139,7 +142,7 @@ public:
      * @param min Saturation lower bound.
      * @param max Saturation upper bound.
      *
-     * The anti-windup scheme sets zero integral gain (ki) to zero if the
+     * The anti-windup scheme sets zero integral gain `ki` to zero if the
      * controller output goes beyond the saturation limit to prevent error
      * integration building up.
      * The saturation limit should be set according to the physical limitation
@@ -150,7 +153,7 @@ public:
         satMax = max;
         satMin = min;
         // reset the controller if windup occurred (i.e. y[-1] out of range)
-        if (!isAntiWindupEnabled && (states[2] < min || state[2] > max)) {
+        if (!isAntiWindupEnabled && (states[2] < min || states[2] > max)) {
             reset();
         }
         isAntiWindupEnabled = true;
@@ -192,9 +195,7 @@ public:
      * This method does not change gain and anti-windup settings.
      */
     void reset() {
-        for (uint8_t i = 0; i < 4; i++) {
-            states[i] = 0;
-        }
+        memset(states, 0, sizeof(states));
     }
 
     /**
@@ -202,10 +203,6 @@ public:
      */
     bool getIsAntiWindupActive() const {
         return isAntiWindupActive;
-    }
-
-    T* getStates() const {
-        return states;
     }
 }; // class PID
 

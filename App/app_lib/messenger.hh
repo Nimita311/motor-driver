@@ -1,6 +1,7 @@
 /**
  * @file     messenger.hh
- * @brief    Messaging helper class. Wrapper for nanopb library.
+ * @brief    Messaging helper classes `Sender` and `Receiver`.
+ *           Wrapper for nanopb library.
  * @author   Haoze Zhang
  * @version  20200211
  *

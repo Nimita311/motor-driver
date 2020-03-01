@@ -1,6 +1,6 @@
 /**
  * @file     fifo_buffer.hh
- * @brief    A lightweight circular FIFO buffer.
+ * @brief    `FIFOBuffer` class.
  * @author   Haoze Zhang
  * @version  20200221
  *
@@ -13,6 +13,11 @@
 
 namespace brown {
 
+/**
+ * @brief A lightweight circular FIFO buffer.
+ * @param T Value datatype.
+ * @param SIZE Size datatype.
+ */
 template <class T, class SIZE>
 class FIFOBuffer {
 private:

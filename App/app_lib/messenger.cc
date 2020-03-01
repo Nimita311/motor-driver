@@ -1,3 +1,13 @@
+/**
+ * @file     messenger.cc
+ * @brief    `Sender` and `Receiver` class implementation.
+ * @author   Haoze Zhang
+ * @version  20200301
+ *
+ * Distributed under MIT License
+ * Copyright (c) 2020 Haoze Zhang | Brown Engineering
+ */
+
 #include "messenger.hh"
 
 namespace brown {

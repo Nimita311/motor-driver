@@ -1,6 +1,6 @@
 /**
  * @file     fir.hh
- * @brief    FIR digital filter.
+ * @brief    `FIR` class.
  * @author   Haoze Zhang
  * @version  20200213
  *
@@ -17,9 +17,9 @@ namespace brown {
 
 /**
  * @brief Finite Impulse Response (FIR) filter.
- * @param T Filter datatype.
- * @param SIZE Size datatype. It must be unsigned. Its maximum value must
- * exceed twice of the filter order.
+ * @param T Filter computation datatype.
+ * @param SIZE Size datatype. It must be an unsigned type. Its maximum value
+ * must exceed twice of the filter order.
  */
 template <class T, class SIZE>
 class FIR {
@@ -60,7 +60,7 @@ public:
 
     /**
      * @brief Provide the filter with a new input x[0].
-     * @param x0 Current input.
+     * @param x0 Current input x[0].
      */
     void input(T x0) {
         x.add(x0);
@@ -68,8 +68,10 @@ public:
     }
 
     /**
-     * @brief Compute filter output y[0]. Return 0 if there is not enough data.
-     * @return T Current output.
+     * @brief Compute filter output y[0] with convolution.
+     * @return T Current output y[0].
+     *
+     * Return 0 if there is not enough data.
      */
     T output() const {
         if (!isValid()) {return 0;}
@@ -77,6 +79,7 @@ public:
         T y0 = 0;
         // Not using coefficient table
         if (idxStart == nullptr || idxTable == nullptr || nR == 0 || nC == 0) {
+            // Convolution
             for (SIZE i = 0; i < x.capacity(); i++) {
                 y0 += h[i]*x[i];
             }
@@ -111,7 +114,7 @@ public:
 
     /**
      * @brief Order of the filter.
-     * @return SIZE Filter order.
+     * @return SIZE
      */
     inline SIZE order() const __attribute__((always_inline)) {
         return x.capacity();
