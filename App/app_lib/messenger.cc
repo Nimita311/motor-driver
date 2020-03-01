@@ -3,10 +3,10 @@
 namespace brown {
 
 // Preamble and delimiter of the message. Simple packeting scheme.
-static const char* PREAMBLE = "UUUAT";
-static size_t PREAMBLE_SIZE = 5;
-static const char* DELIMITER = "\0\0\0AT";
-static size_t DELIMITER_SIZE = 5;
+static constexpr const char* PREAMBLE = "UUUAT";
+static constexpr const size_t PREAMBLE_SIZE = 5;
+static constexpr const char* DELIMITER = "\0\0\0AT";
+static constexpr const size_t DELIMITER_SIZE = 5;
 
 bool Sender::_writePacketToStream(pb_ostream_t* pStream,
         const pb_msgdesc_t* pFields, const void* pMessage) {
