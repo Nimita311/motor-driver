@@ -149,6 +149,10 @@ public:
     void enableAntiWindup(T min, T max) {
         satMax = max;
         satMin = min;
+        // reset the controller if windup occurred (i.e. y[-1] out of range)
+        if (!isAntiWindupEnabled && (states[2] < min || state[2] > max)) {
+            reset();
+        }
         isAntiWindupEnabled = true;
     }
 
