@@ -17,27 +17,35 @@ namespace brown {
  * @param T IIR filter type. Typical float or double.
  *
  * Discretized with bilinear transform from H(s) = kp + ki/s + kd*s.
+ * With an optional first order 1/(tau*s+1) compensation for causality,
+ * bandwidth limitation, and in some cases stability.
  * Transfer function:
- *     H(z) = (k0*X(z) + k1*X(z)*z^-1 + k2*X(z)*x^-2) / (1 - z^-2)
+ *     H(z) = (k0*X(z) + k1*X(z)*z^-1 + k2*X(z)*z^-2) / (1 - z^-2) or
+ *     H(z) = (k0*X(z) + k1*X(z)*z^-1 + k2*X(z)*z^-2) / (a + (b-a)*Y(z)*z^-1 - b*z^-2)
  * Difference equation:
- *     y[0] = k0*x[0] + k1*x[-1] + k2*x[-2] + y[-2]
- * Marginally stable with two poles on the unit circle. May cause the close
- * loop system to be unstable with some plants.
+ *     y[0] = k0*x[0] + k1*x[-1] + k2*x[-2] + y[-2] or
+ *     y[0] = k0/a*x[0] + k1/a*x[-1] + k2/a*x[-2] + (a-b)/a*y[-1] + b/a*y[-2]
+ * Marginally stable with two poles on the unit circle without compensation.
+ * May cause the close loop system to be unstable with some plants.
  */
 template <class T>
 class PID {
 private:
-    // Continuous PID gains and sampling period [s]
-    T kp, ki, kd, ts;
+    // Continuous PID gains
+    T kp, ki, kd;
+    // Sampling period [s]
+    T ts;
+    // Optional first order compensation time constant
+    T tau = 0;
 
     // Digital IIR filter states
     // x[-1], x[-2], y[-1], y[-2]
     T states[4];
 
     // Digital IIR gains
-    // x[0], x[-1], x[-2]
-    T kpd[3];  // Digital gains without integration for anti-windup
-    T kpid[3]; // Digital gains with integration
+    // x[0], x[-1], x[-2], y[-1], y[-2]
+    T kpd[5];  // Digital gains without integration for anti-windup
+    T kpid[5]; // Digital gains with integration
 
     // Saturation range for anti-windup
     T satMax, satMin;
@@ -49,23 +57,32 @@ private:
     void _deriveGains() {
         T kdOts = kd/ts;
         T kiXts = ki*ts;
+        T tauOts = tau/ts;
+        T a = 1 + 2*tauOts;
+        T b = 1 - 2*tauOts;
+        T oneOa = 1/a;
         // gains with ki
-        kpid[0] = kp + kiXts*0.5 + 2.0*kdOts;
-        kpid[1] = kiXts - 4.0*kdOts;
-        kpid[2] = -kp + 0.5*kiXts + 2.0*kdOts;
+        kpid[0] = (kp + kiXts*0.5 + 2.0*kdOts) * oneOa;
+        kpid[1] = (kiXts - 4.0*kdOts) * oneOa;
+        kpid[2] = (-kp + 0.5*kiXts + 2.0*kdOts) * oneOa;
+        kpid[3] = (a-b) * oneOa;
+        kpid[4] = b * oneOa;
         // gains with ki=0
-        kpd[0] = kp + 2.0*kdOts;
-        kpd[1] = -4.0*kdOts;
-        kpd[2] = -kp + 2.0*kdOts;
+        kpd[0] = (kp + 2.0*kdOts) * oneOa;
+        kpd[1] = (-4.0*kdOts) * oneOa;
+        kpd[2] = (-kp + 2.0*kdOts) * oneOa;
+        kpd[3] = kpid[3];
+        kpd[4] = kpid[4];
     }
 
     // IIR filtering, solve the difference equation for y[0]
     T _output(T x0, T* activeGainSet) {
-        T out = 0.0;
+        T out = 0;
         out += x0*activeGainSet[0];
         out += states[0]*activeGainSet[1];
         out += states[1]*activeGainSet[2];
-        out += states[3];
+        out += states[2]*activeGainSet[3];
+        out += states[3]*activeGainSet[4];
         return out;
     }
 
@@ -88,13 +105,14 @@ public:
      * @param ki Integral gain.
      * @param kd Derivative gain.
      * @param ts Sampling period [s] for discretization.
+     * @param tau Time constant of the first order compensation.
      *
      * Note that the parameters are continuous gains in
-     * H(s) = kp + ki/s + kd*s.
+     * H(s) = kp + ki/s + kd*s. The compensated system is H(s)/(tau*s+1).
      */
-    PID(T kp, T ki, T kd, T ts) {
+    PID(T kp, T ki, T kd, T ts, T tau=0) {
         reset(); // set to zero state
-        setGains(kp, ki, kd, ts);
+        setGains(kp, ki, kd, ts, tau);
     }
 
     /**
@@ -107,11 +125,12 @@ public:
      * Note that the parameters are continuous gains in
      * H(s) = kp + ki/s + kd*s.
      */
-    void setGains(T kp, T ki, T kd, T ts) {
+    void setGains(T kp, T ki, T kd, T ts, T tau=0) {
         this->kp = kp;
         this->ki = ki;
         this->kd = kd;
         this->ts = ts;
+        this->tau = tau;
         _deriveGains();
     }
 
@@ -138,6 +157,7 @@ public:
      */
     void disableAntiWindup() {
         isAntiWindupEnabled = false;
+        isAntiWindupActive = false;
     }
 
     /**
