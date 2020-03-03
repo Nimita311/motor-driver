@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\tcmd.proto\"8\n\x03\x43md\x12\n\n\x02id\x18\x01 \x01(\r\x12\x1a\n\x07pid_cmd\x18\x02 \x01(\x0b\x32\x07.PIDCmdH\x00\x42\t\n\x07\x63ontent\"\x98\x01\n\x06PIDCmd\x12\x12\n\nenable_pid\x18\x01 \x01(\x08\x12\n\n\x02kp\x18\x02 \x01(\x02\x12\n\n\x02ki\x18\x03 \x01(\x02\x12\n\n\x02kd\x18\x04 \x01(\x02\x12\x1a\n\x12\x65nable_anti_windup\x18\x05 \x01(\x08\x12\x0b\n\x03min\x18\x06 \x01(\x02\x12\x0b\n\x03max\x18\x07 \x01(\x02\x12\n\n\x02ts\x18\x08 \x01(\x02\x12\t\n\x01w\x18\t \x01(\x02\x12\t\n\x01u\x18\n \x01(\x02\x62\x06proto3'
+  serialized_pb=b'\n\tcmd.proto\"8\n\x03\x43md\x12\n\n\x02id\x18\x01 \x01(\r\x12\x1a\n\x07pid_cmd\x18\x02 \x01(\x0b\x32\x07.PIDCmdH\x00\x42\t\n\x07\x63ontent\"\xa5\x01\n\x06PIDCmd\x12\x12\n\nenable_pid\x18\x01 \x01(\x08\x12\n\n\x02kp\x18\x02 \x01(\x02\x12\n\n\x02ki\x18\x03 \x01(\x02\x12\n\n\x02kd\x18\x04 \x01(\x02\x12\x1a\n\x12\x65nable_anti_windup\x18\x05 \x01(\x08\x12\x0b\n\x03min\x18\x06 \x01(\x02\x12\x0b\n\x03max\x18\x07 \x01(\x02\x12\n\n\x02ts\x18\x08 \x01(\x02\x12\t\n\x01w\x18\t \x01(\x02\x12\t\n\x01u\x18\n \x01(\x02\x12\x0b\n\x03tau\x18\x0b \x01(\x02\x62\x06proto3'
 )
 
 
@@ -142,6 +142,13 @@ _PIDCMD = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='tau', full_name='PIDCmd.tau', index=10,
+      number=11, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -155,7 +162,7 @@ _PIDCMD = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=72,
-  serialized_end=224,
+  serialized_end=237,
 )
 
 _CMD.fields_by_name['pid_cmd'].message_type = _PIDCMD

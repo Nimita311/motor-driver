@@ -9,14 +9,20 @@ message Cmd {
 
 message PIDCmd {
     // PID gains
-    float kp = 1;
-    float ki = 2;
-    float kd = 3;
+    bool enable_pid = 1;
+    float kp = 2;
+    float ki = 3;
+    float kd = 4;
     // Anti-windup
-    float min = 4;
-    float max = 5;
-    // Sampling period
-    float ts = 6;
+    bool enable_anti_windup = 5;
+    float min = 6;
+    float max = 7;
+    // Sampling period [s]
+    float ts = 8;
     // Setpoint
-    float w = 7;
+    float w = 9;
+    // controller output
+    float u = 10;
+    // first order compensation time constant
+    float tau = 11;
 }

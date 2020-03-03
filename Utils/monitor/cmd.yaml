@@ -1,6 +1,7 @@
 # cmd.yaml
 #
-# This file is used to configure the microcontroller.
+# This file contains configures for the microcontroller. The structure and
+# names of the entries should be the same as the coresponding protobuf message.
 #
 # Distributed under MIT License
 # Copyright (c) 2020 Haoze Zhang | Brown Engineering
@@ -8,18 +9,24 @@
 %YAML 1.2
 ---
 pid_cmd:
+  # PID switch
   enable_pid: true
+
+  # PID gains
   kp: 1.0
   ki: 0.5
   kd: 0.01
+
+  # First order compensation time constant
+  tau: 0.05
+
+  # Sampling period [s]
+  ts: 0.05
 
   # Anti-windup
   enable_anti_windup: true
   min: 0.0
   max: 1.0
-
-  # Sampling period [s]
-  ts: 0.05
 
   # Setpoint
   w: 20.0

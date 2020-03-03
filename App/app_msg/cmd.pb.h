@@ -15,13 +15,16 @@ extern "C" {
 
 /* Struct definitions */
 typedef struct _PIDCmd {
+    bool enable_pid;
     float kp;
     float ki;
     float kd;
+    bool enable_anti_windup;
     float min;
     float max;
     float ts;
     float w;
+    float u;
 } PIDCmd;
 
 typedef struct _Cmd {
@@ -35,18 +38,21 @@ typedef struct _Cmd {
 
 /* Initializer values for message structs */
 #define Cmd_init_default                         {0, 0, {PIDCmd_init_default}}
-#define PIDCmd_init_default                      {0, 0, 0, 0, 0, 0, 0}
+#define PIDCmd_init_default                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define Cmd_init_zero                            {0, 0, {PIDCmd_init_zero}}
-#define PIDCmd_init_zero                         {0, 0, 0, 0, 0, 0, 0}
+#define PIDCmd_init_zero                         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
-#define PIDCmd_kp_tag                            1
-#define PIDCmd_ki_tag                            2
-#define PIDCmd_kd_tag                            3
-#define PIDCmd_min_tag                           4
-#define PIDCmd_max_tag                           5
-#define PIDCmd_ts_tag                            6
-#define PIDCmd_w_tag                             7
+#define PIDCmd_enable_pid_tag                    1
+#define PIDCmd_kp_tag                            2
+#define PIDCmd_ki_tag                            3
+#define PIDCmd_kd_tag                            4
+#define PIDCmd_enable_anti_windup_tag            5
+#define PIDCmd_min_tag                           6
+#define PIDCmd_max_tag                           7
+#define PIDCmd_ts_tag                            8
+#define PIDCmd_w_tag                             9
+#define PIDCmd_u_tag                             10
 #define Cmd_pid_cmd_tag                          2
 #define Cmd_id_tag                               1
 
@@ -59,13 +65,16 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (content,pid_cmd,content.pid_cmd),   2)
 #define Cmd_content_pid_cmd_MSGTYPE PIDCmd
 
 #define PIDCmd_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, FLOAT,    kp,                1) \
-X(a, STATIC,   SINGULAR, FLOAT,    ki,                2) \
-X(a, STATIC,   SINGULAR, FLOAT,    kd,                3) \
-X(a, STATIC,   SINGULAR, FLOAT,    min,               4) \
-X(a, STATIC,   SINGULAR, FLOAT,    max,               5) \
-X(a, STATIC,   SINGULAR, FLOAT,    ts,                6) \
-X(a, STATIC,   SINGULAR, FLOAT,    w,                 7)
+X(a, STATIC,   SINGULAR, BOOL,     enable_pid,        1) \
+X(a, STATIC,   SINGULAR, FLOAT,    kp,                2) \
+X(a, STATIC,   SINGULAR, FLOAT,    ki,                3) \
+X(a, STATIC,   SINGULAR, FLOAT,    kd,                4) \
+X(a, STATIC,   SINGULAR, BOOL,     enable_anti_windup,   5) \
+X(a, STATIC,   SINGULAR, FLOAT,    min,               6) \
+X(a, STATIC,   SINGULAR, FLOAT,    max,               7) \
+X(a, STATIC,   SINGULAR, FLOAT,    ts,                8) \
+X(a, STATIC,   SINGULAR, FLOAT,    w,                 9) \
+X(a, STATIC,   SINGULAR, FLOAT,    u,                10)
 #define PIDCmd_CALLBACK NULL
 #define PIDCmd_DEFAULT NULL
 
@@ -77,8 +86,8 @@ extern const pb_msgdesc_t PIDCmd_msg;
 #define PIDCmd_fields &PIDCmd_msg
 
 /* Maximum encoded size of messages (where known) */
-#define Cmd_size                                 43
-#define PIDCmd_size                              35
+#define Cmd_size                                 52
+#define PIDCmd_size                              44
 
 #ifdef __cplusplus
 } /* extern "C" */
