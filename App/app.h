@@ -24,7 +24,7 @@ __asm volatile                                                      \
     " ldr r1, [r0, #24]                                         \n" \
     " ldr r2, handler2_address_const                            \n" \
     " bx r2                                                     \n" \
-    " handler2_address_const: .word getRegisters                \n" \
+    " handler2_address_const: .word getRegistersHardFaultISR    \n" \
 );
 
 #ifdef __cplusplus
@@ -44,11 +44,11 @@ void appInit();
 BaseType_t appCreateTasks();
 
 void taskFreqCntTimerISR(TIM_HandleTypeDef *htim);
-void taskMsgDMAISR();
-void getRegisters(uint32_t* pStack);
+void taskTXUartISR();
+void taskRXUartISR();
+void getRegistersHardFaultISR(uint32_t* pStack);
 
 void _putchar(char c);
-void _putblock(char* c, size_t size);
 
 #ifdef __cplusplus
 } // extern "C"
