@@ -1,4 +1,6 @@
-# cmd.yaml
+# cmd-example.yaml
+#
+# Example configuration.
 #
 # This file contains configures for the microcontroller. The structure and
 # names of the entries should be the same as the coresponding protobuf message.
