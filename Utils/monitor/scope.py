@@ -86,7 +86,7 @@ class Scope(object):
 
 def main():
     ''' A demo that plots two iid random processes. '''
-    import time;
+    import time
     import random
     import threading
     import matplotlib.pyplot as plt
