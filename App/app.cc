@@ -26,10 +26,10 @@
 #include "freq_counter.hh"
 #include "messenger.hh"
 
+#include "app_serv/led_service.hh"
+
 #include "info.pb.h"
 #include "cmd.pb.h"
-
-
 
 /* Settings *****************************************************************/
 #define TX_UART USART3
@@ -39,27 +39,15 @@
 #define RX_DMA DMA1
 #define RX_DMA_STREAM LL_DMA_STREAM_1
 
+/* Services *****************************************************************/
+static brown::LEDService led;
+
 /* Handles ******************************************************************/
 static TaskHandle_t taskPIDHandle = NULL;
 
 /* Static functions *********************************************************/
 static void _putblock(char* c, size_t size);
 static void _putblockDMA(char* c, size_t size);
-
-/* Task: LEDToggle **********************************************************/
-static TaskHandle_t taskLEDToggleHandle = NULL;
-static TickType_t LEDOnDuration = pdMS_TO_TICKS(100);
-static const TickType_t LEDTogglePeriod = pdMS_TO_TICKS(500);
-
-static void taskLEDToggle(void* params) {
-    for (;;) {
-        TickType_t xLastWakeTime = xTaskGetTickCount();
-        BSP_LED_On(LED_GREEN);
-        vTaskDelayUntil(&xLastWakeTime, LEDOnDuration);
-        BSP_LED_Off(LED_GREEN);
-        vTaskDelayUntil(&xLastWakeTime, LEDTogglePeriod-LEDOnDuration);
-    }
-}
 
 /* Task TX ******************************************************************/
 static TaskHandle_t taskTXHandle = NULL;
@@ -257,9 +245,7 @@ BaseType_t appCreateTasks() {
      *     &xHandle);        // Used to pass out the created task's handle.
      */
 
-    isSuccess &= xTaskCreate(
-        taskLEDToggle, "LEDToggle", 128, NULL,
-        tskIDLE_PRIORITY+10, &taskLEDToggleHandle);
+    isSuccess &= led.start("led", 128, 1);
 
     isSuccess &= xTaskCreate(
         taskTX, "TX", 512, NULL,
@@ -285,8 +271,7 @@ BaseType_t appCreateTasks() {
 
 
 void appInit() {
-    // Task: LEDToggle
-    BSP_LED_Init(LED_GREEN);
+    led.init();
 
     // Task: Msg
     // Enable transmission complete IRQ

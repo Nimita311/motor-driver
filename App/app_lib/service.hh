@@ -4,6 +4,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#define hardware private
 #define async public
 #define sync public
 
