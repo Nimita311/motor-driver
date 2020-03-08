@@ -31,6 +31,11 @@ public:
 
     virtual bool init() = 0;
     virtual void run() = 0;
+
+    /**
+     * @brief Receive command.
+     */
+    virtual void receive(Cmd* pCmdContainer) {};
 }; // class Service
 
 } // namespace brown
