@@ -9,6 +9,7 @@
 #define hardware private
 #define async public
 #define sync public
+#define isr public
 
 namespace brown {
 
@@ -55,6 +56,8 @@ public:
 
     /**
      * @brief Receive command.
+     *
+     * Not all services need to receive commands thus not pure virtual.
      */
     virtual void receive(Cmd* pCmdContainer) {};
 }; // class Service
