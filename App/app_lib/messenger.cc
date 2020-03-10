@@ -81,7 +81,7 @@ bool Receiver::receive(const pb_msgdesc_t* pFields, void* pMessage) {
 
     /* 2. Validate packet. */
     // Not enough data
-    if (pktSize < PREAMBLE_SIZE+DELIMITER_SIZE) {
+    if (pktSize < PREAMBLE_SIZE) {
         headIdx = tailIdx;
         errCount++;
         return false;
