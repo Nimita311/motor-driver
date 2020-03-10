@@ -12,9 +12,13 @@
 #ifndef INC_APP_H_
 #define INC_APP_H_
 
+#ifndef __cplusplus
+#include <stdbool.h>
+#endif
+
 #include "stm32h7xx_hal.h"
 
-#define APP_HARDFAULT_ISR                                           \
+#define APP_HARDFAULT_ISR()                                         \
 __asm volatile                                                      \
 (                                                                   \
     " tst lr, #4                                                \n" \
@@ -34,18 +38,18 @@ extern "C" {
 /**
   * Initialize the application.
   */
-void appInit();
+bool appInit();
 
 /**
   * Create all application level FreeRTOS tasks.
   * This function should be called in main before the kernel starts.
   * @return BaseType_t FreeRTOS success flag
   */
-BaseType_t appCreateTasks();
+bool appStartServices();
 
-void taskFreqCntTimerISR(TIM_HandleTypeDef *htim);
-void taskTXUartISR();
-void taskRXUartISR();
+void txUartISR();
+void rxUartISR();
+void bldcISR();
 void getRegistersHardFaultISR(uint32_t* pStack);
 
 void _putchar(char c);

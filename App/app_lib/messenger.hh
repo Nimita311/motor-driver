@@ -48,7 +48,7 @@ public:
      * @param putblock Callback function to transmit a block of characters
      * via the hardware interface.
      */
-    Sender(uint8_t* buffer, uint16_t bufferSize,
+    Sender(uint8_t* buffer, size_t bufferSize,
             void (*putblock) (char*, size_t)):
         buffer(buffer), bufferSize(bufferSize), putblock(putblock) {}
 
@@ -79,7 +79,7 @@ public:
 }; // class Sender
 
 class Receiver {
-private:
+protected:
     uint8_t* pRawBuffer = nullptr;
     size_t rawBufferSize = 0;
 

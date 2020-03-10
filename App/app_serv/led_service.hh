@@ -12,11 +12,10 @@ private:
     TickType_t onTime = 50;
 
 hardware:
-    Led_TypeDef blinker = LED_GREEN;
-    Led_TypeDef indicator = LED_BLUE;
+    Led_TypeDef blinker;
+    Led_TypeDef indicator;
 
 public:
-    LEDService();
     LEDService(Led_TypeDef blinker, Led_TypeDef indicator):
         blinker(blinker), indicator(indicator) {}
     bool init();

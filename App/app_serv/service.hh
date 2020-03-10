@@ -15,17 +15,25 @@ namespace brown {
 
 class Service {
 private:
-    static uint32_t serviceCount;
+    inline static Service* head = nullptr;
+    inline static uint32_t serviceCount = 0;
     static void _runService(void* service);
+    Service* next = nullptr;
 
 protected:
     uint32_t id;
     TaskHandle_t taskHandle = nullptr;
 
 public:
-    static void resetCounter() {serviceCount=0;}
-    inline uint32_t getID() {return id;}
-    inline TaskHandle_t getHandle() {return taskHandle;}
+    static void reset() {head=nullptr; serviceCount=0;}
+    static Service* getHead() {return head;}
+    static bool initAll();
+
+    inline Service* getNext() const {return next;}
+    inline uint32_t getID() const {return id;}
+    inline TaskHandle_t getHandle() const {return taskHandle;}
+
+    Service();
 
     /**
      * @brief Create the RTOS task for this service.
@@ -59,7 +67,7 @@ public:
      *
      * Not all services need to receive commands thus not pure virtual.
      */
-    virtual void receive(Cmd* pCmdContainer) {};
+    virtual void command(Cmd& cmdContainer) {};
 }; // class Service
 
 } // namespace brown
