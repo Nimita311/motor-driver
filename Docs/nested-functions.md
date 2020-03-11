@@ -2,7 +2,7 @@
 
 ## GNU C Specific
 Nested function definition
-```
+```c
 void func1() {
     void func2() {
         // ...
@@ -12,7 +12,7 @@ void func1() {
 is not valid in ANSI C. It is [a language extension supported by GCC](https://gcc.gnu.org/onlinedocs/gcc/Nested-Functions.html). You will find this feature available to you in STM32CubeIDE since GCC is used. Avoid overfiting yourself to any compiler specific language features while learning C.
 
 ## Limited Scope of The Inner Function
-The function `func2` in the example will not be available for external or internal linkage beyond the scope of `func1`.
+Function `func2` in the example will not be available for external or internal linkage beyond the scope of `func1`.
 
 For example, if you define a STM32 HAL callback function `HAL_TIM_PeriodElapsedCallback` within `main`, the linker will not be able to see it and replace the original weak definition. Thus your ISR cannot work as intended.
 

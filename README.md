@@ -11,9 +11,6 @@ This project mainly serves teaching purposes. The source code is well commented 
 
 Build instructions and makefiles are intentionally excluded. For experienced users, it should be straightforward to configure STM32Cube or any of your favorite toolchains to build the project.
 
-## Hardware Target
-The target board is NUCLEO-H743ZI made by STMicroelectronics. It uses a 144-pin [STM32H743ZIT6][stm32h743] microprocessor with an [Arm Cortex-M7][cortexm7] core. Hardware dependent part of this project is implemented with STM32CubeH7 development package and STM32CubeMX code generation tool.
-
 ## Source Structure
 Directory | Description
 --- | ---
@@ -25,8 +22,11 @@ Directory | Description
 [`Utils/`][util] | Utilities on desktop, e.g. monitors and consoles.
 Others | Dependencies for your reference.
 
-## Documentations
-Frequently asked questions in office hours are addressed here. [Email me][hzz] to get your questions answered here.
+## Hardware Target
+The target board is NUCLEO-H743ZI made by STMicroelectronics. It uses a 144-pin [STM32H743ZIT6][stm32h743] microprocessor with an [Arm Cortex-M7][cortexm7] core. Hardware dependent part of this project is implemented with STM32CubeH7 development package and STM32CubeMX code generation tool.
+
+## Background Knowledge
+Frequently asked questions in office hours and useful background knowledge are addressed here. [Email me][hzz] to get your questions answered.
 
 - [Nested functions in C and C++](Docs/nested-functions.md)
 
